@@ -5,7 +5,7 @@ Jimbo le dice a Aranguito
 
 U I U O O U I
 Pero de momento
-Víctor le dice a Jimbo
+Aranguito le dice a Jimbo
 ¡Toma mango!
 
 De repente entonces
