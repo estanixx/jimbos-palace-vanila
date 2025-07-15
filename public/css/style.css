@@ -1,0 +1,21 @@
+/* For the pixelated font */
+.pixel-font {
+    font-family: 'Press Start 2P', cursive;
+}
+
+/* Fade-in animation for the homepage title */
+.fade-in-text {
+    animation: fadeIn 3s ease-in-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
