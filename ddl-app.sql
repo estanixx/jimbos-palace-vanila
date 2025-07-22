@@ -6,8 +6,8 @@ CREATE TABLE contrato (
     fecha_inicio DATE NOT NULL,
     fecha_fin DATE NOT NULL,
     salary NUMERIC NOT NULL,
-    CONSTRAINT chk_fechas CHECK (fecha_fin >= fecha_inicio),
-    CONSTRAINT chk_salary CHECK (salary > 0)
+    CHECK (fecha_fin >= fecha_inicio),
+    CHECK (salary > 0)
 );
 
 -- ####################################################################
@@ -22,16 +22,16 @@ CREATE TABLE empleado (
     codigo_certificacion NUMERIC,
     años_experiencia NUMERIC,
     juego_certificado VARCHAR(100),
-    no_contrato NUMERIC NOT NULL,
-    CONSTRAINT fk_mentor FOREIGN KEY (codigo_mentor) REFERENCES empleado(codigo) ON DELETE SET NULL,
-    CONSTRAINT fk_contrato FOREIGN KEY (no_contrato) REFERENCES contrato(no_contrato) ON DELETE CASCADE,
-    CONSTRAINT chk_tipo CHECK (tipo IN ('CRUPIER', 'JEFE DE SALA')),
-    CONSTRAINT chk_auto_mentor CHECK (codigo <> codigo_mentor),
-    CONSTRAINT chk_jefe_sala CHECK (
+    no_contrato NUMERIC NULL,
+    FOREIGN KEY (codigo_mentor) REFERENCES empleado(codigo) ON DELETE SET NULL,
+    FOREIGN KEY (no_contrato) REFERENCES contrato(no_contrato) ON DELETE CASCADE,
+    CHECK (tipo IN ('CRUPIER', 'JEFE DE SALA')),
+    CHECK (codigo <> codigo_mentor),
+    CHECK (
         (tipo = 'JEFE DE SALA' AND area_asignada IS NOT NULL AND codigo_certificacion IS NOT NULL) OR
         (tipo != 'JEFE DE SALA')
     ),
-    CONSTRAINT chk_crupier CHECK (
+    CHECK (
         (tipo = 'CRUPIER' AND años_experiencia IS NOT NULL AND juego_certificado IS NOT NULL) OR
         (tipo != 'CRUPIER')
     )
@@ -43,20 +43,23 @@ CREATE TABLE empleado (
 CREATE TABLE transaccion (
     codigo NUMERIC PRIMARY KEY,
     nombre_cliente VARCHAR(255) NOT NULL,
-    codigo_empleado NUMERIC NOT NULL,
+    codigo_encargado NUMERIC NOT NULL,
+    codigo_revisor NUMERIC NULL,
     monto_dinero NUMERIC NOT NULL,
     fecha DATE NOT NULL,
     hora TIME NOT NULL,
     tipo VARCHAR(50) NOT NULL,
     cantidad_fichas NUMERIC,
     nombre_torneo VARCHAR(150),
-    CONSTRAINT fk_empleado FOREIGN KEY (codigo_empleado) REFERENCES empleado(codigo),
-    CONSTRAINT chk_tipo_transaccion CHECK (tipo IN ('CANJE FICHAS', 'COMPRA FICHAS', 'INSCRIPCION')),
-    CONSTRAINT chk_fichas CHECK (
+    FOREIGN KEY (codigo_encargado) REFERENCES empleado(codigo),
+    FOREIGN KEY (codigo_revisor) REFERENCES empleado(codigo),
+    CHECK (codigo_revisor <> codigo_encargado),
+    CHECK (tipo IN ('CANJE FICHAS', 'COMPRA FICHAS', 'INSCRIPCION')),
+    CHECK (
         (tipo IN ('CANJE FICHAS', 'COMPRA FICHAS') AND cantidad_fichas IS NOT NULL) OR
         (tipo NOT IN ('CANJE FICHAS', 'COMPRA FICHAS'))
     ),
-    CONSTRAINT chk_torneo CHECK (
+    CHECK (
         (tipo = 'INSCRIPCION' AND nombre_torneo IS NOT NULL) OR
         (tipo != 'INSCRIPCION')
     )

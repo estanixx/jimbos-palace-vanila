@@ -25,6 +25,7 @@
                 <a href="/transaccion/transaccion.php" class="text-white hover:text-yellow-300 px-3">Transacciones</a>
                 <a href="/busquedas/busqueda1.php" class="text-white hover:text-yellow-300 px-3">Búsqueda 1</a>
                 <a href="/busquedas/busqueda2.php" class="text-white hover:text-yellow-300 px-3">Búsqueda 2</a>
+                <a href="/busquedas/consultas.php" class="text-white hover:text-yellow-300 px-3">Consultas</a>
             </div>
         </div>
     </nav>

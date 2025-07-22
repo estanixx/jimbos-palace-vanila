@@ -3,9 +3,9 @@
         <div class="integrantes">
             <h2 class="text-lg font-bold">Integrantes</h2>
             <ul class="text-gray-400">
-                <li>Juan Esteban Arango Zapata</li>
-                <li>Juan José Arango Marín</li>
-                <li>Sacol</li>
+                <li>Ju<b>an</b> Esteban Arang<b>o</b> Zapata</li>
+                <li>Juan Jo<b>sé</b> Ara<b>n</b>g<b>o</b> Marín</li>
+                <li><b>Sa</b>muel <b>Col</b>orado Castrillón</li>
             </ul>
         </div>
         <div class="informacion mt-4 text-sm text-gray-500">

@@ -23,12 +23,12 @@
                 </select>
             </div>
             <div class="mb-4">
-                <label for="no_contrato" class="block text-white mb-2">Contrato</label>
-                <select name="no_contrato" id="no_contrato" class="w-full p-2 bg-gray-700 rounded border border-gray-600" required>
-                    <option value="" selected disabled>Seleccione un contrato...</option>
+                <label for="no_contrato" class="block text-white mb-2">Contrato (Opcional)</label>
+                <select name="no_contrato" id="no_contrato" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                    <option value="" selected>Sin Contrato</option>
                     <?php
                         require('../config/conexion.php');
-                        $query_contratos = "SELECT no_contrato FROM contrato ORDER BY no_contrato";
+                        $query_contratos = "SELECT con.no_contrato, e.codigo FROM contrato AS con LEFT JOIN empleado AS e ON e.no_contrato = con.no_contrato WHERE e.codigo IS NULL ORDER BY no_contrato";
                         $result_contratos = pg_query($conn, $query_contratos);
                         while ($row = pg_fetch_assoc($result_contratos)) {
                             echo "<option value='{$row['no_contrato']}'>Contrato N° {$row['no_contrato']}</option>";
@@ -39,7 +39,7 @@
              <div class="mb-4">
                 <label for="codigo_mentor" class="block text-white mb-2">Mentor (Opcional)</label>
                 <select name="codigo_mentor" id="codigo_mentor" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
-                    <option value="">Sin mentor</option>
+                    <option selected value="">Sin mentor</option>
                      <?php
                         // Re-query employees for mentor dropdown
                         $query_mentores = "SELECT codigo, nombre_completo FROM empleado ORDER BY nombre_completo";
@@ -97,13 +97,20 @@
                     <tr class="border-b border-gray-700">
                         <td class="py-3 px-4"><?= $fila['codigo']; ?></td>
                         <td class="py-3 px-4"><?= $fila['nombre_completo']; ?></td>
-                        <td class="py-3 px-4"><span class="px-2 py-1 rounded <?= $fila['tipo'] == 'CRUPIER' ? 'bg-blue-600' : 'bg-purple-600' ?>"><?= $fila['tipo']; ?></span></td>
+                        <td class="py-3 px-4"><span class="px-2 py-1 rounded <?= $fila['tipo'] == 'CRUPIER' ? 'bg-blue-600' : 'bg-purple-600' ?>"><?= htmlspecialchars($fila['tipo']); ?></span></td>
                         <td class="py-3 px-4"><?= $fila['nombre_mentor'] ?? 'N/A'; ?></td>
+
                         <td class="py-3 px-4 text-sm">
-                            <?php if ($fila['tipo'] == 'CRUPIER'): ?>
-                                Exp: <?= $fila['años_experiencia']; ?> años<br>Juego: <?= $fila['juego_certificado']; ?>
+                            <?php if (!empty($fila['no_contrato'])): ?>
+                                Contrato #<?= $fila['no_contrato']; ?>
                             <?php else: ?>
-                                Área: <?= $fila['area_asignada']; ?><br>Cert: <?= $fila['codigo_certificacion']; ?>
+                                Contrato indefinido🤔
+                            <?php endif; ?>
+                            <br/>
+                            <?php if ($fila['tipo'] == 'CRUPIER'): ?>
+                                Experiencia: <?= $fila['años_experiencia']; ?> años<br>Juego: <?= $fila['juego_certificado']; ?>
+                            <?php else: ?>
+                                Área: <?= $fila['area_asignada']; ?><br>Certificacion: <?= $fila['codigo_certificacion']; ?>
                             <?php endif; ?>
                         </td>
                         <td class="py-3 px-4 text-center">

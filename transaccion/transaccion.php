@@ -15,15 +15,29 @@
                 <input type="text" name="nombre_cliente" id="nombre_cliente" class="w-full p-2 bg-gray-700 rounded" required>
             </div>
             <div>
-                <label for="codigo_empleado" class="block text-white mb-2">Empleado</label>
-                <select name="codigo_empleado" id="codigo_empleado" class="w-full p-2 bg-gray-700 rounded" required>
+                <label for="codigo_encargado" class="block text-white mb-2">Encargado</label>
+                <select name="codigo_encargado" id="codigo_encargado" class="w-full p-2 bg-gray-700 rounded" required>
                     <option value="" selected disabled>Seleccione...</option>
                     <?php
                         require('../config/conexion.php');
                         $query_empleados = "SELECT codigo, nombre_completo FROM empleado ORDER BY nombre_completo";
                         $result_empleados = pg_query($conn, $query_empleados);
                         while ($row = pg_fetch_assoc($result_empleados)) {
-                            echo "<option value='{$row['codigo']}'>{$row['nombre_completo']}</option>";
+                            echo "<option value='{$row['codigo']}'>#{$row['codigo']}</option>";
+                        }
+                    ?>
+                </select>
+            </div>
+            <div>
+                <label for="codigo_revisor" class="block text-white mb-2">Revisor (Opcional)</label>
+                <select name="codigo_revisor" id="codigo_revisor" class="w-full p-2 bg-gray-700 rounded">
+                    <option value="" selected>Sin Revisor</option>
+                    <?php
+                        require('../config/conexion.php');
+                        $query_empleados = "SELECT codigo, nombre_completo FROM empleado ORDER BY nombre_completo";
+                        $result_empleados = pg_query($conn, $query_empleados);
+                        while ($row = pg_fetch_assoc($result_empleados)) {
+                            echo "<option value='{$row['codigo']}'>#{$row['codigo']}</option>";
                         }
                     ?>
                 </select>
@@ -69,7 +83,8 @@
         <thead class="bg-gray-700">
             <tr>
                 <th class="py-3 px-4 text-left">Cliente</th>
-                <th class="py-3 px-4 text-left">Empleado</th>
+                <th class="py-3 px-4 text-left">Encargado</th>
+                <th class="py-3 px-4 text-left">Revisor</th>
                 <th class="py-3 px-4 text-left">Tipo</th>
                 <th class="py-3 px-4 text-left">Monto</th>
                 <th class="py-3 px-4 text-left">Fecha y Hora</th>
@@ -85,9 +100,10 @@
             ?>
                     <tr class="border-b border-gray-700">
                         <td class="py-3 px-4"><?= $fila['nombre_cliente']; ?></td>
-                        <td class="py-3 px-4"><?= $fila['nombre_empleado']; ?></td>
+                        <td class="py-3 px-4"><?= $fila['nombre_ejecutor']; ?></td>
+                        <td class="py-3 px-4"><?= empty($fila['nombre_revisor']) ? 'N/A' : $fila['nombre_revisor'] ?></td>
                         <td class="py-3 px-4"><?= $fila['tipo']; ?></td>
-                        <td class="py-3 px-4">$<?= number_format($fila['monto_dinero']); ?></td>
+                        <td class="py-3 px-4">$<?= number_format($fila['monto_dinero'], 2); ?></td>
                         <td class="py-3 px-4"><?= $fila['fecha']; ?> <?= $fila['hora']; ?></td>
                         <td class="py-3 px-4 text-sm">
                             <?php if ($fila['cantidad_fichas']): ?>
@@ -99,7 +115,7 @@
                         <td class="py-3 px-4 text-center">
                             <form action="transaccion_delete.php" method="POST" onsubmit="return confirm('¿Seguro? Se eliminará esta transacción.');">
                                 <input type="hidden" name="codigo_eliminar" value="<?= $fila['codigo']; ?>">
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 font-bold py-1 px-3 rounded">X</button>
+                                <button type="submit" class="bg-red-600 hover:bg-red-700 font-bold py-1 px-3 rounded">Eliminar</button>
                             </form>
                         </td>
                     </tr>

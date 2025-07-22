@@ -6,7 +6,7 @@ $codigo = $_POST['codigo'];
 $nombre_completo = $_POST['nombre_completo'];
 $codigo_mentor = !empty($_POST['codigo_mentor']) ? $_POST['codigo_mentor'] : null;
 $tipo = $_POST['tipo'];
-$no_contrato = $_POST['no_contrato'];
+$no_contrato = empty($_POST['no_contrato']) ? null : $_POST['no_contrato'];
 
 // Collect conditional data
 $area_asignada = ($tipo === 'JEFE DE SALA' && !empty($_POST['area_asignada'])) ? $_POST['area_asignada'] : null;

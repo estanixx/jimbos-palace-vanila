@@ -48,7 +48,7 @@
                         <td class="py-3 px-4"><?= $fila['no_contrato']; ?></td>
                         <td class="py-3 px-4"><?= $fila['fecha_inicio']; ?></td>
                         <td class="py-3 px-4"><?= $fila['fecha_fin']; ?></td>
-                        <td class="py-3 px-4">$<?= number_format($fila['salary']); ?></td>
+                        <td class="py-3 px-4">$<?= number_format($fila['salary'], 2); ?></td>
                         <td class="py-3 px-4 text-center">
                             <form action="contrato_delete.php" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este contrato?');">
                                 <input type="hidden" name="no_contrato_eliminar" value="<?= $fila['no_contrato']; ?>">

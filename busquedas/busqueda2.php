@@ -1,56 +1,44 @@
 <?php include "../includes/header.php"; ?>
 
-<h1 class="text-4xl pixel-font text-center text-yellow-400 mb-2">Búsqueda de Inscripciones a Torneos</h1>
-<p class="text-center text-gray-400 mb-8">Filtre las inscripciones por empleado y rango de fechas.</p>
+<h1 class="text-4xl pixel-font text-center text-yellow-400 mb-2">Transacciones extemporáneas</h1>
+<p class="text-center text-gray-400 mb-8">Obtenga las transacciones extemporaneas a un contrato</p>
 
 <div class="formulario bg-gray-800 p-6 rounded-lg shadow-lg mb-8 max-w-lg mx-auto">
     <form action="busqueda2.php" method="POST">
         <div class="mb-4">
-            <label for="codigo_empleado" class="block text-white mb-2">Empleado</label>
-            <select name="codigo_empleado" id="codigo_empleado" class="w-full p-2 bg-gray-700 rounded" required>
-                <option value="" disabled selected>Seleccione un empleado...</option>
+            <label for="no_contrato" class="block text-white mb-2">Contrato</label>
+            <select name="no_contrato" id="no_contrato" class="w-full p-2 bg-gray-700 rounded" required>
+                <option value="" disabled selected>Seleccione un contrato...</option>
                 <?php
                     require('../config/conexion.php');
-                    $query_empleados = "SELECT codigo, nombre_completo FROM empleado ORDER BY nombre_completo";
-                    $result_empleados = pg_query($conn, $query_empleados);
-                    $selected_empleado = $_POST['codigo_empleado'] ?? '';
-                    while ($row = pg_fetch_assoc($result_empleados)) {
-                        $selected = ($row['codigo'] == $selected_empleado) ? 'selected' : '';
-                        echo "<option value='{$row['codigo']}' $selected>{$row['nombre_completo']}</option>";
+                    $query_contratos = "SELECT no_contrato FROM contrato ORDER BY no_contrato";
+                    $result_contratos = pg_query($conn, $query_contratos);
+                    $selected_contrato = $_POST['no_contrato'] ?? '';
+                    while ($row = pg_fetch_assoc($result_contratos)) {
+                        $selected = ($row['no_contrato'] == $selected_contrato) ? 'selected' : '';
+                        echo "<option value='{$row['no_contrato']}' $selected>Contrato #{$row['no_contrato']}</option>";
                     }
                 ?>
             </select>
         </div>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-                <label for="fecha_inicio" class="block text-white mb-2">Desde</label>
-                <input type="date" name="fecha_inicio" id="fecha_inicio" class="w-full p-2 bg-gray-700 rounded" required value="<?= $_POST['fecha_inicio'] ?? '' ?>">
-            </div>
-            <div>
-                <label for="fecha_fin" class="block text-white mb-2">Hasta</label>
-                <input type="date" name="fecha_fin" id="fecha_fin" class="w-full p-2 bg-gray-700 rounded" required value="<?= $_POST['fecha_fin'] ?? '' ?>">
-            </div>
-        </div>
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Buscar Transacciones</button>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Buscar Transacciones Extemporaneas🤔</button>
     </form>
 </div>
 
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST'):
     // Connection already open from dropdown population, no need to require again
-    $empleado_id = $_POST['codigo_empleado'];
-    $fecha_inicio = $_POST['fecha_inicio'];
-    $fecha_fin = $_POST['fecha_fin'];
+    $no_contrato = $_POST['no_contrato'];
 
-    $query = "SELECT codigo, nombre_cliente, nombre_torneo, monto_dinero, fecha 
-              FROM transaccion 
-              WHERE tipo = 'INSCRIPCION' 
-              AND codigo_empleado = $1 
-              AND fecha BETWEEN $2 AND $3
-              ORDER BY fecha DESC";
+    $query = "SELECT con.no_contrato, con.fecha_inicio, con.fecha_fin, emp.nombre_completo, tran.fecha, tran.nombre_cliente, tran.tipo, tran.monto_dinero
+        FROM contrato AS con
+        INNER JOIN empleado AS emp ON emp.no_contrato = con.no_contrato
+        INNER JOIN transaccion AS tran ON tran.codigo_revisor = emp.codigo
+        WHERE con.no_contrato = $1 AND tran.fecha NOT BETWEEN con.fecha_inicio AND con.fecha_fin
+        ORDER BY tran.fecha DESC";
     
-    $result = pg_prepare($conn, "busqueda_inscripcion", $query);
-    $result = pg_execute($conn, "busqueda_inscripcion", array($empleado_id, $fecha_inicio, $fecha_fin));
+    $result = pg_prepare($conn, "busqueda2", $query);
+    $result = pg_execute($conn, "busqueda2", array($no_contrato));
 
     if ($result && pg_num_rows($result) > 0):
 ?>
@@ -58,18 +46,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'):
     <table class="min-w-full">
         <thead class="bg-gray-700">
             <tr>
-                <th class="py-3 px-4 text-left">Cliente</th>
-                <th class="py-3 px-4 text-left">Torneo</th>
+                <th class="py-3 px-4 text-left">Empleado</th>
+                <th class="py-3 px-4 text-left">Movimiento</th>
                 <th class="py-3 px-4 text-left">Monto</th>
-                <th class="py-3 px-4 text-left">Fecha</th>
+                <th class="py-3 px-4 text-left">Inicio Contrato</th>
+                <th class="py-3 px-4 text-left">Fin Contrato</th>
+                <th class="py-3 px-4 text-left">Fecha Transaccion</th>
             </tr>
         </thead>
         <tbody class="text-gray-300">
             <?php while ($fila = pg_fetch_assoc($result)): ?>
             <tr class="border-b border-gray-700">
-                <td class="py-3 px-4"><?= $fila['nombre_cliente']; ?></td>
-                <td class="py-3 px-4"><?= $fila['nombre_torneo']; ?></td>
+                <td class="py-3 px-4"><?= $fila['nombre_completo']; ?></td>
+                <td class="py-3 px-4"><?= $fila['tipo']; ?> a <?= $fila['nombre_cliente']; ?> </td>
                 <td class="py-3 px-4">$<?= number_format($fila['monto_dinero']); ?></td>
+                <td class="py-3 px-4"><?= $fila['fecha_inicio']; ?></td>
+                <td class="py-3 px-4"><?= $fila['fecha_fin']; ?></td>
                 <td class="py-3 px-4"><?= $fila['fecha']; ?></td>
             </tr>
             <?php endwhile; ?>
@@ -77,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'):
     </table>
 </div>
 <?php elseif ($_SERVER['REQUEST_METHOD'] === 'POST'): ?>
-<div class="text-center bg-red-800 p-4 rounded-lg text-white mt-8">No se encontraron inscripciones para este empleado en el rango de fechas seleccionado.</div>
+<div class="text-center bg-red-800 p-4 rounded-lg text-white mt-8">No se encontraron transacciones extemporaneas al contrato.</div>
 <?php 
     endif;
     if ($conn) { pg_close($conn); }
