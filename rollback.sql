@@ -1,0 +1,11 @@
+DROP TABLE transaccion;
+DROP TABLE empleado;
+DROP TABLE torneo;
+DROP TABLE apuesta;
+DROP TABLE accion_jugador;
+DROP TABLE cliente;
+DROP TABLE tragamonedas;
+DROP TABLE juego_mesa;
+DROP TABLE juego;
+DROP TABLE tipo_juego_de_mesa;
+DROP TABLE contrato;

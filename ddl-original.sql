@@ -58,7 +58,8 @@ CREATE TABLE cliente (
   nivel_lealtad VARCHAR(50) NOT NULL,
   saldo_puntos NUMERIC NOT NULL,
   CHECK (nivel_lealtad IN ('BRONCE', 'PLATA', 'ORO')),
-  CHECK (saldo_puntos >= 0)
+  CHECK (saldo_puntos >= 0),
+  CHECK ( fecha_nacimiento <= CURRENT_DATE - INTERVAL '18 years' )
 );
 
 -- ####################################################################
@@ -98,8 +99,8 @@ CREATE TABLE apuesta(
   monto_dinero NUMERIC NOT NULL,
   fecha DATE NOT NULL,
   hora TIME NOT NULL,
-  id_accion_jugador NUMERIC NOT NULL,
-  FOREIGN KEY (id_accion_jugador) REFERENCES accion_jugador(id) ON DELETE RESTRICT,
+  cod_accion_jugador NUMERIC NOT NULL,
+  FOREIGN KEY (cod_accion_jugador) REFERENCES accion_jugador(id) ON DELETE RESTRICT,
   CHECK (monto_dinero > 0)
 );
 
@@ -108,16 +109,16 @@ CREATE TABLE apuesta(
 -- ####################################################################
 
 CREATE TABLE torneo(
-    id NUMERIC PRIMARY KEY,
+    codigo NUMERIC PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     fecha_inicio DATE NOT NULL,
     fecha_fin DATE NOT NULL,
     pozo_premios NUMERIC NOT NULL,
     cod_cliente NUMERIC NULL,
-    id_torneo_clasificatorio NUMERIC NULL,
+    cod_torneo_clasificatorio NUMERIC NULL,
     FOREIGN KEY (cod_cliente) REFERENCES cliente(codigo) ON DELETE RESTRICT,
-    FOREIGN KEY (id_torneo_clasificatorio) REFERENCES torneo(id) ON DELETE SET NULL,
-    CHECK (id != id_torneo_clasificatorio),
+    FOREIGN KEY (cod_torneo_clasificatorio) REFERENCES torneo(codigo) ON DELETE SET NULL,
+    CHECK (codigo != cod_torneo_clasificatorio),
     CHECK (fecha_inicio <= fecha_fin),
     CHECK (pozo_premios > 0)
 );
@@ -130,6 +131,7 @@ CREATE TABLE empleado (
     codigo NUMERIC PRIMARY KEY,
     nombre_completo VARCHAR(255) NOT NULL,
     codigo_mentor NUMERIC NULL,
+    fecha_contratacion DATE NOT NULL,
     tipo VARCHAR(50) NOT NULL,
     area_asignada VARCHAR(100),
     codigo_certificacion NUMERIC NULL,
@@ -165,9 +167,9 @@ CREATE TABLE transaccion (
     hora TIME NOT NULL,
     tipo VARCHAR(50) NOT NULL,
     cantidad_fichas NUMERIC,
-    id_torneo NUMERIC NULL,
+    cod_torneo NUMERIC NULL,
     FOREIGN KEY (codigo_encargado) REFERENCES empleado(codigo),
-    FOREIGN KEY (id_torneo) REFERENCES torneo(id) ON DELETE SET NULL,
+    FOREIGN KEY (cod_torneo) REFERENCES torneo(codigo) ON DELETE SET NULL,
     FOREIGN KEY (codigo_revisor) REFERENCES empleado(codigo),
     FOREIGN KEY (cod_cliente) REFERENCES cliente(codigo) ON DELETE RESTRICT,
     CHECK (codigo_revisor <> codigo_encargado),
@@ -177,7 +179,7 @@ CREATE TABLE transaccion (
         (tipo NOT IN ('CANJE FICHAS', 'COMPRA FICHAS'))
     ),
     CHECK (
-        (tipo = 'INSCRIPCION' AND id_torneo IS NOT NULL) OR
+        (tipo = 'INSCRIPCION' AND cod_torneo IS NOT NULL) OR
         (tipo != 'INSCRIPCION')
     ),
     CHECK (monto_dinero > 0)
